@@ -1,6 +1,8 @@
-# udacity-linux-server-configuration
 
+# linux-server-configuration
 
+This the third project on Udacity's Full Stack Web Developer Nanodegree.
+## server info :
 
 IP address:  52.59.3.233
 
@@ -13,19 +15,19 @@ host provider :  amazon lightsail
 OS : ubuntu 18.04
 
 # Configuration steps
-##1. Update all currently installed packages :
-  -  `$ sudo apt-get update`
-  -  `$ sudo apt-get upgrade`
+## 1. Update all currently installed packages :
+  -  `$ sudo apt update`
+  -  `$ sudo apt upgrade`
   
-##2. Create new user :
+## 2. Create new user :
   - Run `$ sudo adduser grader` to create a new user named grader
   - add grader to sudo group 
-  `$ usermod -aG sudo username`
+  `$ usermod -aG sudo grader`
   - then switch to grader user using
   `$ sudo su - grader`
   
-##3.Configure Firewall : 
-3. Configure the Uncomplicated Firewall (UFW) to only allow incoming connections for SSH (port 2200), HTTP (port 80), and NTP (port 123)
+## 3.Configure Firewall : 
+-  Configure the Uncomplicated Firewall (UFW) to only allow incoming connections for SSH (port 2200), HTTP (port 80), and NTP (port 123)
   - `sudo ufw default deny incoming`
   - `sudo ufw default allow outgoing `
   - `sudo ufw allow 2200/tcp`
@@ -33,7 +35,7 @@ OS : ubuntu 18.04
   - `sudo ufw allow ntp`
   - `sudo ufw enable`
 
-##4. set login restrictions : 
+## 4. set login restrictions : 
 - Change SSH port from 22 to 2200
   - Run `sudo nano /etc/ssh/sshd_config`
   - Change the port from 22 to 2200
@@ -42,11 +44,8 @@ OS : ubuntu 18.04
   - Restart ssh with `sudo service ssh restart`
   
 
-  
-5. Configure the local timezone to UTC
-  - Run `$ sudo dpkg-reconfigure tzdata` and then choose UTC
  
-##5. Configure key-based authentication for grader user :
+## 5. Configure key-based authentication for grader user :
 ### Step 1 — Create the RSA Key Pair :
 - on your local machine , use this command 
 `       $ssh-keygen
@@ -58,8 +57,8 @@ After entering the command, you should see the following output:
     Enter file in which to save the key (/your_home/.ssh/grader):
     ```
 
-Press  `ENTER`  to save the key pair into the  `.ssh/`  subdirectory in your home directory, or specify an alternate path.
-###Step 2 — Copy the Public Key to Ubuntu Server
+Press  `ENTER`  to save the key pair into the  `.ssh/`  sub directory in your home directory, or specify an alternate path.
+### Step 2 — Copy the Public Key to Ubuntu Server
 To display the content of your  `grader.pub`  key, type this into your local computer:
 
 ```
@@ -81,22 +80,22 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCqql6MzstZYh1TmWWv11q5O3pISj2ZFl9HgH1JLknL
   `$cat >> .ssh/authorized_keys`
 Paste the public key into the **.ssh/authorized_keys** file
 
-###Step 3 — Authenticate to Ubuntu Server Using SSH Keys
+### Step 3 — Authenticate to Ubuntu Server Using SSH Keys
 - login to your server using ssh 
 
 `ssh -i ~/.ssh/grader grader@52.59.3.233 
 `
 
-##6. Install Apache
+## 6. Install Apache
   - `sudo apt install apache2`
 
-##7. Install mod_wsgi
+## 7. Install mod_wsgi
   - Run `sudo apt-get install libapache2-mod-wsgi python-dev`
   - Enable mod_wsgi with `sudo a2enmod wsgi`
   - Start the web server with `sudo service apache2 start`
 
   
-##8. Clone the Catalog app from Github
+## 8. Clone the Catalog app from Github
   - Install git using: `sudo apt-get install git`
   - `cd /var/www`
 
@@ -116,13 +115,13 @@ from runserver import app as application
   - create an empty file in flaskapp directory named  `__init__.py `
   
 
-##9. Install Flask and other requirements
+## 9. Install Flask and other requirements
   - Install pip with `sudo apt-get install python3-pip`
   - Install requirements from requirements.txt
   `sudo pip3 install -r requirements.txt`
 
   
-##10. Configure apache2 
+## 10. Configure apache2 
   - Run this: `sudo nano /etc/apache2/sites-available/flaskapp.conf`
   - Paste this code: 
   
@@ -174,18 +173,16 @@ from runserver import app as application
   - Enable the virtual host `sudo a2ensite flaskapp`
   - disable the default host `sudo a2dissite 000-default`
   - To start the web server when it is stopped, type:
-
-`sudo systemctl start apache2
+  - `sudo systemctl start apache2
 `
 - To stop and then start the service again, type:
-
 `sudo systemctl restart apache2
 `
 If you are simply making configuration changes, Apache can often reload without dropping connections. To do this, use this command:
-
 `sudo systemctl reload apache2
 `
-##11. Install and configure PostgreSQL
+
+## 11. Install and configure PostgreSQL
   - `sudo apt install postgresql postgresql-contrib`
   - change to postgres user `sudo su - postgres`
   - run `psql`
@@ -200,23 +197,24 @@ If you are simply making configuration changes, Apache can often reload without 
   - Change  line in  `config.py`  to: 
   `SQLALCHEMY_DATABASE_URI = 'postgresql://grader:grader@localhost/catalog'`
   - populate data base
-  `python /var/www/catalog/catalog/db_populate.py`
+  `python /var/www/flaskapp/db_populate.py`
   - By default no remote connections to the database are allowed. 
   
-##12. switch time to UTC 
+## 12. switch time to UTC 
 
   - To switch to UTC, simply execute `sudo dpkg-reconfigure tzdata`, scroll to the bottom of the Continents list and select Etc or None of the above; in the second list, select UTC
   
-##13. Run the server 
+## 13. Run the server 
   - before  `sudo service apache2 restart`
   - go to `http://52.59.3.233.xip.io/` to see the application running 
   
-##14.Debugging
+## 14.Debugging
 
 If you are getting any error, check out Apache's error log for debugging:
 
 `$ sudo cat /var/log/apache2/error.log`
-##15.References
+
+## 15.References
 1. https://aws.amazon.com/premiumsupport/knowledge-center/new-user-accounts-linux-instance/
 1. https://linuxize.com/post/how-to-create-a-sudo-user-on-ubuntu/
 1. https://www.cyberciti.biz/faq/ubuntu-18-04-update-installed-packages-for-security/
